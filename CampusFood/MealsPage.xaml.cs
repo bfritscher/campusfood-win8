@@ -1,5 +1,4 @@
 ﻿using CampusFood.Data;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +23,7 @@ namespace CampusFood
     /// </summary>
     public sealed partial class MealsPage : CampusFood.Common.LayoutAwarePage
     {
+
         public MealsPage()
         {
             this.InitializeComponent();
@@ -40,9 +40,42 @@ namespace CampusFood
         /// session.  This will be null the first time a page is visited.</param>
         protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var sampleDataGroups = SampleDataSource.GetGroups((String)navigationParameter);
-            this.DefaultViewModel["Items"] = sampleDataGroups;
+            this.DefaultViewModel["Items"] = FoodDataSource.Meals;
+        }
+        
+        private void itemGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (itemGridView.SelectedItem != null)
+            {
+                PageAppBar.IsOpen = true;
+            }
+            
+            
+        }
+        
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            FoodDataSource.Meals.Remove((Meal)itemGridView.SelectedItem);
+            PageAppBar.IsOpen = false;
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PageAppBar_Closed(object sender, object e)
+        {
+            DeleteButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void PageAppBar_Opened(object sender, object e)
+        {
+            if (itemGridView.SelectedItem != null)
+            {
+                DeleteButton.Visibility = Visibility.Visible;
+            }
         }
     }
 }

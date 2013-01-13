@@ -54,7 +54,8 @@ namespace CampusFood
 
             // Load recipe data
 
-            await MenuDataSource.LoadRemoteDataAsync();
+            await FoodDataSource.LoadRemoteMenusAsync();
+            await FoodDataSource.LoadRemoteMealsAsync();
 
 
 
