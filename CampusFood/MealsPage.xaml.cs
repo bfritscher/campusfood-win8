@@ -27,6 +27,13 @@ namespace CampusFood
         public MealsPage()
         {
             this.InitializeComponent();
+            this.Loaded += (sender, e) =>
+            {
+                if (FoodDataSource.Meals.Count == 0)
+                {
+                    this.Frame.Navigate(typeof(MenuSelectionPage));
+                }
+            };
         }
 
         /// <summary>
@@ -38,9 +45,16 @@ namespace CampusFood
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override async void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
             this.DefaultViewModel["Items"] = FoodDataSource.Meals;
+            if (FoodDataSource.Meals.Count > 0)
+            {
+                progressBar.Visibility = Visibility.Visible;
+                await FoodDataSource.LoadRemoteMealsAsync();
+                progressBar.Visibility = Visibility.Collapsed;
+            }
+            
         }
         
         private void itemGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -62,7 +76,7 @@ namespace CampusFood
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-
+            this.Frame.Navigate(typeof(MenuSelectionPage));
         }
 
         private void PageAppBar_Closed(object sender, object e)

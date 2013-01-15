@@ -8,6 +8,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ApplicationSettings;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -52,12 +53,7 @@ namespace CampusFood
                 return;
             }
 
-            // Load recipe data
-
-            await FoodDataSource.LoadRemoteMenusAsync();
-            await FoodDataSource.LoadRemoteMealsAsync();
-
-
+            await FoodDataSource.XMLDeserialize();
 
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -98,6 +94,9 @@ namespace CampusFood
                     throw new Exception("Failed to create initial page");
                 }
             }
+
+            SettingsPane.GetForCurrentView().CommandsRequested += OnCommandsRequested;
+
             // Ensure the current window is active
             Window.Current.Activate();
         }
@@ -115,5 +114,15 @@ namespace CampusFood
             await SuspensionManager.SaveAsync();
             deferral.Complete();
         }
+
+        private void OnCommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
+        {
+            var privacy = new SettingsCommand("Privacy Policy", "Privacy Policy", (handler) => {
+                Windows.System.Launcher.LaunchUriAsync(new Uri(@"https://isisvn.unil.ch/campusfood/privacy"));
+            });
+            args.Request.ApplicationCommands.Add(privacy);
+            
+        }
+
     }
 }

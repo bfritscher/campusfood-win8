@@ -7,6 +7,11 @@
 
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <x:String x:Key="ProgressBarIndeterminateForegroundThemeBrush">White</x:String>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- 
@@ -24,8 +29,8 @@
             <DataTemplate x:Key="MealTemplate">
             	<Grid Height="700" Width="500" Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
                     <ItemsControl Margin="40">
-                    <TextBlock Text="{Binding menu}" TextWrapping="Wrap" Margin="0" FontSize="36" LineHeight="40"  FontWeight="Bold" HorizontalAlignment="Stretch"  Style="{StaticResource CustomTextStyle}"/>
-            		<TextBlock Text="{Binding name}" TextWrapping="Wrap" Margin="0,50,0,0"  FontSize="32" LineHeight="48" HorizontalAlignment="Stretch" Style="{StaticResource CustomTextStyle}" />
+                    <TextBlock Text="{Binding name}" TextWrapping="Wrap" Margin="0" FontSize="36" LineHeight="40"  FontWeight="Bold" HorizontalAlignment="Stretch"  Style="{StaticResource CustomTextStyle}"/>
+            		<TextBlock Text="{Binding content}" TextWrapping="Wrap" Margin="0,50,0,0"  FontSize="32" LineHeight="48" HorizontalAlignment="Stretch" Style="{StaticResource CustomTextStyle}" />
                     </ItemsControl>
             	</Grid>
             </DataTemplate>

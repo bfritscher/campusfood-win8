@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="CampusFood.App">
-      <VisualElements DisplayName="Campus Food Lausanne" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="CampusFood" ForegroundText="light" BackgroundColor="#464646">
+      <VisualElements DisplayName="Campus Food Lausanne" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="Campus Food Lausanne permet de consulter les menus du jour de midi des différentes cafétérias des campus de l'Université de Lausanne ( UNIL ) et de École Polytechnique Fédérale de Lausanne ( EPFL ). Cette application dispose également d'un widget pour l'écran principal." ForegroundText="light" BackgroundColor="#000000">
         <DefaultTile ShowName="allLogos" />
         <SplashScreen Image="Assets\SplashScreen.png" />
       </VisualElements>

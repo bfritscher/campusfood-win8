@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Storage;
 
 namespace CampusFood.Data
 {
     [Windows.Foundation.Metadata.WebHostHidden]
     public abstract class FoodCommon : CampusFood.Common.BindableBase
     {
-        private double _id;
+        private double _id = 0;
+         
         public double id
         {
             get { return this._id; }
@@ -20,6 +25,7 @@ namespace CampusFood.Data
         }
 
         private string _name = string.Empty;
+
         public string name
         {
             get { return this._name; }
@@ -35,10 +41,40 @@ namespace CampusFood.Data
     public class Campus : FoodCommon
     {
         private ObservableCollection<Location> _locations = new ObservableCollection<Location>();
+
+        public Campus()
+        {
+            _locations.CollectionChanged += NotifyCollectionChangedEventHandler;
+        }
+
+        private void NotifyCollectionChangedEventHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            this.OnPropertyChanged("Description");
+        }
+        
         public ObservableCollection<Location> locations
         {
             get { return this._locations; }
         }
+
+        private bool _active;
+
+        public int Count
+        {
+            get { return _locations.Count; }
+        }
+
+        public bool Active
+        {
+            get { return _active; }
+            set { this.SetProperty(ref _active, value); }
+        }
+
+        public String Description
+        {
+            get { return String.Format("{0} ({1})", this.name, _locations.Count); }
+        }
+
     }
 
     public class Location : FoodCommon
@@ -77,21 +113,61 @@ namespace CampusFood.Data
         {
             return String.Join("", new String[]{this.location.name, " - ", this.name});
         }
-        
+
+
+        public Meal createMeal()
+        {
+            Meal meal = new Meal();
+            meal.mid = this.id;
+            meal.name = this.ToString();
+            return meal;
+        }
     }
 
     public class Meal : FoodCommon
     {
-        private Menu _menu;
-        public Menu menu
+        private double _mid;
+        
+        public double mid
         {
-            get { return this._menu; }
-            set { this.SetProperty(ref this._menu, value); }
+            get { return this._mid; }
+            set { this.SetProperty(ref this._mid, value); }
+        }
+
+        private string _content = string.Empty;
+
+        public string content
+        {
+            get { return this._content; }
+            set { this.SetProperty(ref this._content, value); }
+        }
+
+
+        public void UpdateWith(Meal meal)
+        {
+            this.content = meal.content;
+            this.id = meal.id;
         }
     }
 
     public sealed class FoodDataSource
     {
+
+        private ObservableCollection<Meal> _meals = new ObservableCollection<Meal>();
+        public static ObservableCollection<Meal> Meals
+        {
+            get
+            {
+                return _foodDataSource._meals;
+            }
+            set
+            {
+                _foodDataSource._meals.Clear();
+                foreach(Meal m in value){
+                _foodDataSource._meals.Add(m);
+                }
+            }
+        }
 
         public ObservableCollection<Meal> FakeMeals
         {
@@ -112,8 +188,8 @@ namespace CampusFood.Data
                 l.menus.Add(m1);
                 Meal me = new Meal();
                 me.id = 1;
-                me.name = "Jus d'orange\nPoitrine de poulet (BRA)\naux herbettes\nRiz créole\nSalade ou pomme\nBoulangerie";
-                me.menu = m1;
+                me.content = "Jus d'orange\nPoitrine de poulet (BRA)\naux herbettes\nRiz créole\nSalade ou pomme\nBoulangerie";
+                me.name = m1.ToString();
                 m1.meal = me;
 
                 meals.Add(me);
@@ -125,24 +201,100 @@ namespace CampusFood.Data
                 return meals;
             }
         }
+        public ObservableCollection<Campus> FakeCampus
+        {
+            get
+            {
+                var campus = new ObservableCollection<Campus>();
+                Campus c = new Campus();
+                c.id = 1;
+                c.name = "UNIL";
+                Location l = new Location();
+                c.locations.Add(l);
+                c.locations.Add(l);
+                campus.Add(c);
+                c = new Campus();
+                c.id = 2;
+                c.name = "EPFL";
+                l = new Location();
+                c.locations.Add(l);
+                c.locations.Add(l);
+                campus.Add(c);
+
+                return campus;
+            }
+        }
+
+        public ObservableCollection<Location> FakeLocations
+        {
+            get
+            {
+                Random rnd = new Random();
+                var ls = new ObservableCollection<Location>();
+                for (var j = 1; j < rnd.Next(3, 5); j++)
+                {
+                    Location l = new Location();
+                    l.name = "Batiment " + j;
+                    for (var i = 1; i < rnd.Next(3, 7); i++)
+                    {
+                        Menu m = new Menu();
+                        m.name = "Assiette " + i;
+                        l.menus.Add(m);
+                    }
+                    ls.Add(l);
+                }
+
+                return ls;
+            }
+        }
+
+        const string filename = "data.xml";
+
+        public FoodDataSource(){
+            _meals.CollectionChanged += (a, e) =>
+            {
+                FoodDataSource.XMLSerialize();
+            };
+        }
+
+        public static async Task XMLSerialize()
+        {
+            StorageFile newFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+            Stream newFileStream = await newFile.OpenStreamForWriteAsync();
+            DataContractSerializer ser = new DataContractSerializer(typeof(ObservableCollection<Meal>));
+            ser.WriteObject(newFileStream, FoodDataSource.Meals);
+            newFileStream.Dispose();
+            var test = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+        }
+
+        public static async Task XMLDeserialize()
+        {
+            try
+            {
+                StorageFile newFile = await ApplicationData.Current.LocalFolder.GetFileAsync(filename);
+                Stream newFileStream = await newFile.OpenStreamForReadAsync();
+                DataContractSerializer ser = new DataContractSerializer(typeof(ObservableCollection<Meal>));
+                FoodDataSource.Meals = (ObservableCollection<Meal>)ser.ReadObject(newFileStream);
+                newFileStream.Dispose();
+                
+            }
+            catch(Exception)
+            {
+                FoodDataSource.Meals = new ObservableCollection<Meal>();
+            }
+        }
 
         private static FoodDataSource _foodDataSource = new FoodDataSource();
 
         private ObservableCollection<Campus> _campus = new ObservableCollection<Campus>();
-        public ObservableCollection<Campus> Campus
+        public static ObservableCollection<Campus> Campus
         {
-            get { return this._campus; }
+            get { return _foodDataSource._campus; }
         }
-
-        private ObservableCollection<Meal> _meals = new ObservableCollection<Meal>();
-        public static ObservableCollection<Meal> Meals
-        {
-            get { return _foodDataSource._meals; }
-        }
-
+               
         public static IEnumerable<Location> Locations
         {
-            get { return _foodDataSource.Campus.SelectMany(campus => campus.locations); }
+            get { return FoodDataSource.Campus.SelectMany(campus => campus.locations); }
         }
 
         public static IEnumerable<Menu> Menus
@@ -162,59 +314,83 @@ namespace CampusFood.Data
             CreateCampus(JsonArray.Parse(result));
         }
 
+        private static String MidList
+        {
+            get
+            {
+                return String.Join(",", FoodDataSource.Meals.Select<Meal, Int32>(meal => Convert.ToInt32(meal.mid)));
+            }
+        }
+
         public static async Task LoadRemoteMealsAsync()
         {
             //TODO: handle date
-            //TODO: handle cache
-            //TODO: handle selection of menus
+            //TODO: handle cachedate
+            try
+            {
+                var date = DateTime.Today.ToString("yyyy-MM-dd");
 
-            // Retrieve recipe data from Azure
-            var client = new HttpClient();
-            client.MaxResponseContentBufferSize = 1024 * 1024; // Read up to 1 MB of data
-            var response = await client.GetAsync(new Uri("https://isisvn.unil.ch/campusfood/api/meals/2013-01-10"));
-            var result = await response.Content.ReadAsStringAsync();
+                // Retrieve recipe data from Azure
+                var client = new HttpClient();
+                client.MaxResponseContentBufferSize = 1024 * 1024; // Read up to 1 MB of data
+                var response = await client.GetAsync(new Uri("https://isisvn.unil.ch/campusfood/api/meals/" + date + "/?m=" + FoodDataSource.MidList));
+                var result = await response.Content.ReadAsStringAsync();
 
-            // Parse the JSON recipe data
-            CreateMeal(JsonArray.Parse(result));
+                // Parse the JSON recipe data
+                UpdateMeals(JsonArray.Parse(result));
+                await FoodDataSource.XMLSerialize();
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
-        private static void CreateMeal(JsonArray array)
+        private static void UpdateMeals(JsonArray array)
         {
             foreach (var item in array)
             {
                 Meal meal = new Meal();
-
-                var obj = item.GetObject();
-                foreach (var key in obj.Keys)
+                try
                 {
-                    IJsonValue val;
-                    if (!obj.TryGetValue(key, out val))
-                        continue;
-                    switch (key)
+                    var obj = item.GetObject();
+                    foreach (var key in obj.Keys)
                     {
-                        case "id":
-                            meal.id = val.GetNumber();
-                            break;
-                        case "content":
-                            meal.name = val.GetString();
-                            break;
-                        case "mid":
-                            Menu menu = FoodDataSource.Menus.FirstOrDefault(c => c.id == val.GetNumber());
-                            if (menu != null)
-                            {
-                                meal.menu = menu;
-                                menu.meal = meal;
-                                _foodDataSource._meals.Add(meal);
-                            }
+                        IJsonValue val;
+                        if (!obj.TryGetValue(key, out val))
+                            continue;
+                        switch (key)
+                        {
+                            case "id":
+                                try
+                                {
+                                    meal.id = val.GetNumber();
+                                }
+                                catch (Exception e)
+                                {
 
-                            break;
+                                }
+                                break;
+                            case "content":
+                                meal.content = val.GetString();
+                                break;
+                            case "mid":
+                                meal.mid = val.GetNumber();
+                                break;
+                        }
                     }
+                    FoodDataSource.Meals.First(m => m.mid == meal.mid).UpdateWith(meal);
+                }
+                catch (Exception e)
+                {
+
                 }
             }
         }
 
         private static void CreateCampus(JsonArray array)
         {
+            FoodDataSource.Campus.Clear();
             foreach (var item in array)
             {
                 Campus campus = new Campus();
@@ -238,7 +414,7 @@ namespace CampusFood.Data
                             break;
                     }
                 }
-                _foodDataSource.Campus.Add(campus);
+                FoodDataSource.Campus.Add(campus);
             }
         }
 
