@@ -27,13 +27,18 @@ namespace CampusFood
         public MealsPage()
         {
             this.InitializeComponent();
+            /*
             this.Loaded += (sender, e) =>
             {
+            
                 if (FoodDataSource.Meals.Count == 0)
                 {
-                    this.Frame.Navigate(typeof(MenuSelectionPage));
+                    //this.Frame.Navigate(typeof(MenuSelectionPage));
+                    //add some defaults
+                   
                 }
             };
+            */
         }
 
         /// <summary>
@@ -48,12 +53,59 @@ namespace CampusFood
         protected override async void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
             this.DefaultViewModel["Items"] = FoodDataSource.Meals;
-            if (FoodDataSource.Meals.Count > 0)
+            if (FoodDataSource.Meals.Count == 0)
             {
-                progressBar.Visibility = Visibility.Visible;
-                await FoodDataSource.LoadRemoteMealsAsync();
-                progressBar.Visibility = Visibility.Collapsed;
+
+                 Meal m = new Meal();
+                    m.mid = 3.0;
+                    m.name = "Amphimax - Assiette 1";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 4.0;
+                    m.name = "Amphimax - Assiette 2";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 17.0;
+                    m.name = "Geopolis - Air";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 18.0;
+                    m.name = "Geopolis - Eau";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 19.0;
+                    m.name = "Geopolis - Feu";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 16.0;
+                    m.name = "Geopolis - Terre";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 20.0;
+                    m.name = "Geopolis - Univers";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 5.0;
+                    m.name = "Unithèque - Assiette 1";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 6.0;
+                    m.name = "Unithèque - Assiette 2";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 7.0;
+                    m.name = "Unithèque - Menu 1";
+                    FoodDataSource.Meals.Add(m);
+                    m = new Meal();
+                    m.mid = 8.0;
+                    m.name = "Unithèque - Menu 2";
+                    FoodDataSource.Meals.Add(m);
             }
+
+            progressBar.Visibility = Visibility.Visible;
+            await FoodDataSource.LoadRemoteMealsAsync();
+            progressBar.Visibility = Visibility.Collapsed;
+            
             
         }
         

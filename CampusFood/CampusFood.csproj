@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CampusFood</RootNamespace>
     <AssemblyName>CampusFood</AssemblyName>
-    <DefaultLanguage>fr-CH</DefaultLanguage>
+    <DefaultLanguage>fr</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>CampusFood_StoreKey.pfx</PackageCertificateKeyFile>
@@ -129,7 +129,6 @@
     <None Include="CampusFood_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <PRIResource Include="Strings\fr\Resources.resw" />
-    <PRIResource Include="Strings\en\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Logo.png" />

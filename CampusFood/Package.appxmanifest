@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="21062BorisFritscher.CampusFoodLausanne" Publisher="CN=01B08AD2-A707-40F9-B4EC-5DD803BB4E0F" Version="1.0.0.0" />
+  <Identity Name="21062BorisFritscher.CampusFoodLausanne" Publisher="CN=01B08AD2-A707-40F9-B4EC-5DD803BB4E0F" Version="1.0.0.1" />
   <Properties>
     <DisplayName>Campus Food Lausanne</DisplayName>
     <PublisherDisplayName>Boris Fritscher</PublisherDisplayName>
